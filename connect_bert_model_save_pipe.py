@@ -1,4 +1,28 @@
 import pandas as pd
+import numpy as np
+
+# Convert numpy types to native Python types
+def convert_dtypes_for_postgres(df):
+    for col in df.columns:
+        if df[col].dtype == 'float32' or df[col].dtype == 'float64':
+            df[col] = df[col].astype(float)
+        elif df[col].dtype == 'int32' or df[col].dtype == 'int64':
+            df[col] = df[col].astype(int)
+        elif df[col].dtype == 'object':
+            # If column contains lists/tuples (like your 'connect_Topic_Representation'), 
+            # convert to a string that PostgreSQL can handle
+            df[col] = df[col].apply(lambda x: str(x) if isinstance(x, (list, tuple)) else x)
+    return df
+
+# Assuming df is your DataFrame
+df_cleaned = convert_dtypes_for_postgres(df)
+
+# Now df_cleaned has proper types for inserting into the PostgreSQL database
+
+
+
+
+import pandas as pd
 import scipy.constants as spc
 from scipy.cluster import hierarchy as sch
 from bertopic import BERTopic
