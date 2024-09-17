@@ -240,3 +240,17 @@ if __name__ == "__main__":
 
     # Assuming 'topic_modeling' is an instance of your TopicModeling class and 'topic_model' is trained.
     save_connect_bertopic_model(topic_modeling.topic_model, file_path="connect_bertopic_model_v_0_1")
+
+
+
+
+def manual_topic_name_assignment(topic_model, seed_topic_list, custom_topic_names):
+    topic_info = topic_model.get_topic_info()
+    for i, topic in enumerate(topic_info['Topic']):
+        if topic != -1:  # Skip outliers
+            topic_words = [word for word, _ in topic_model.get_topic(topic)]
+            for j, seed_words in enumerate(seed_topic_list):
+                if any(seed_word in topic_words for seed_word in seed_words):
+                    topic_info.at[i, 'Custom_Topic_Names'] = custom_topic_names[j]
+    return topic_info
+
