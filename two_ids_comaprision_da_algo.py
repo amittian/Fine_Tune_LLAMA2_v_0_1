@@ -19,20 +19,23 @@ class ConnectIncidentComparison:
     def connect_left_join_way(self):
         def method():
             diff_df = self.df1.merge(self.df2, on='incident_number', how='left', indicator=True)
-            return diff_df[diff_df['_merge'] == 'left_only'][['incident_number']]
+            connect_final_df = diff_df[diff_df['_merge'] == 'left_only'][['incident_number']]
+            return connect_final_df
         return self.connect_time_function(method)
 
     # 2. Isin Approach
     def connect_isin_approach(self):
         def method():
-            return self.df1[~self.df1['incident_number'].isin(self.df2['incident_number'])][['incident_number']]
+            connect_final_df = self.df1[~self.df1['incident_number'].isin(self.df2['incident_number'])][['incident_number']]
+            return connect_final_df
         return self.connect_time_function(method)
 
     # 3. Hashing (Set) Approach
     def connect_hashing_approach(self):
         def method():
             df2_incidents_set = set(self.df2['incident_number'])
-            return self.df1[~self.df1['incident_number'].apply(lambda x: x in df2_incidents_set)][['incident_number']]
+            connect_final_df = self.df1[~self.df1['incident_number'].apply(lambda x: x in df2_incidents_set)][['incident_number']]
+            return connect_final_df
         return self.connect_time_function(method)
 
     # 4. Sorting + Binary Search Approach
@@ -41,9 +44,10 @@ class ConnectIncidentComparison:
             df1_sorted = self.df1.sort_values('incident_number')
             df2_sorted = self.df2.sort_values('incident_number')
             df2_incidents_array = df2_sorted['incident_number'].to_numpy()
-            return df1_sorted[~df1_sorted['incident_number'].apply(
+            connect_final_df = df1_sorted[~df1_sorted['incident_number'].apply(
                 lambda x: np.searchsorted(df2_incidents_array, x) < len(df2_incidents_array) and 
                           df2_incidents_array[np.searchsorted(df2_incidents_array, x)] == x)][['incident_number']]
+            return connect_final_df
         return self.connect_time_function(method)
 
     # 5. Trie (Prefix Tree) Approach
@@ -77,7 +81,8 @@ class ConnectIncidentComparison:
             trie = self.ConnectTrie()
             for incident in self.df2['incident_number'].astype(str):
                 trie.connect_insert(incident)
-            return self.df1[~self.df1['incident_number'].astype(str).apply(lambda x: trie.connect_search(x))][['incident_number']]
+            connect_final_df = self.df1[~self.df1['incident_number'].astype(str).apply(lambda x: trie.connect_search(x))][['incident_number']]
+            return connect_final_df
         return self.connect_time_function(method)
 
 # Sample usage:
